@@ -5,6 +5,9 @@ import re
 import requests
 import tempfile
 import os
+import json
+
+from datetime import datetime
 
 from subprocess import call
 
@@ -159,7 +162,36 @@ def assigned_update(user):
 @commander.command('comments')
 def comments():
     '''Gets a log of the comments.'''
-    pass
+    ticket_no = get_ticket_number()
+    res = requests.get('%stickets/%s/notes' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
+    content = res.content
+    notes_root = etree.fromstring(content)
+    res = requests.get('%sassignments' % API_URL, auth=AUTH_CREDENTIALS)
+    content = res.content
+    assignments_root = etree.fromstring(content)
+    user_details = {}
+    for assignment in assignments_root.xpath('/users/user'):
+        user_details[assignment.xpath('id')[0].text] = {
+            'first_name': assignment.xpath('first-name')[0].text,
+            'last_name': assignment.xpath('last-name')[0].text,
+        }
+    for comment in notes_root.xpath('/ticket-notes/ticket-note'):
+        created_at = datetime.strptime(comment.xpath('created-at')[0].text, '%Y-%m-%dT%H:%M:%SZ')
+        content = comment.xpath('content')[0].text
+        update = json.loads(comment.xpath('updates')[0].text)
+        user_id = comment.xpath('user-id')[0].text
+        author_details = user_details[user_id]
+        print 'Author: %s %s' % (author_details['first_name'], author_details['last_name'])
+        print 'Date:   %s\n' % created_at.strftime('%c')
+        if content:
+            print content
+            print ''
+        if update:
+            if 'assignee_id' in update:
+                print 'Assignee changed from %s to %s' % (update['assignee_id'][0], update['assignee_id'][1])
+            if 'status_id' in update:
+                print 'Status changed from %s to %s' % (update['status_id'][0], update['status_id'][1])
+            print ''
 
 
 @commander.command('comment', 'update')
