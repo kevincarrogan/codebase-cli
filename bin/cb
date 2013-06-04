@@ -125,7 +125,7 @@ def status_update(new_status=None):
             auth=AUTH_CREDENTIALS,
             data=post_data,
             headers={'content-type': 'application/xml'},
-            )
+        )
 
 
 @commander.command('statuses')
