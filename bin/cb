@@ -166,6 +166,7 @@ def comments():
 
 
 @commander.command('comment', 'update')
+@commander.command('comments', 'update')
 def comments_update(message=None):
     '''Creates a comment.'''
     if not message:
