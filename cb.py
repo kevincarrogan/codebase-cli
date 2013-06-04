@@ -92,19 +92,22 @@ def comments_update(message=''):
 
 
 if __name__ == "__main__":
+    command_found = False
     command_end = len(sys.argv)
-    command = tuple(sys.argv[1:command_end])
-    try:
-        func = commander.function_map[command]
-    except KeyError:
-        command_end = command_end - 1
-        command = tuple(sys.argv[1:command_end])
-        arguments = tuple(sys.argv[command_end:])
+    command = tuple(sys.argv[1:])
+    arguments = tuple(sys.argv[command_end:])
+    while not command_found and command:
         try:
             func = commander.function_map[command]
-            func(*arguments)
         except KeyError:
-            print 'Command not found'
-    else:
-        arg_found = True
-        func()
+            command_end = command_end - 1
+            command = tuple(sys.argv[1:command_end])
+            arguments = tuple(sys.argv[command_end:])
+        else:
+            command_found = True
+            try:
+                func(*arguments)
+            except TypeError:
+                print 'Too many arguments'
+    if not command_found:
+        print 'Command not found'
