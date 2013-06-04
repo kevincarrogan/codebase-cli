@@ -17,7 +17,7 @@ AUTH_CREDENTIALS = (AUTH_USERNAME, AUTH_TOKEN,)
 
 PROJECT_NAME = config.get('project', 'name')
 
-API_URL = 'http://api3.codebasehq.com/%s/' % PROJECT_NAME
+API_URL = 'https://api3.codebasehq.com/%s/' % PROJECT_NAME
 
 
 class Commander(object):
