@@ -10,9 +10,7 @@
 
 #### Automatic discovery
 
-For automatic discovery he name of the branch is important as it will map to the ticket. Either ticket-xxx- or xxx- are valid.
-
-The repository will also be used to guess the project.
+For automatic discovery the name of the branch is important as it will map to the ticket. Either ticket-xxx- or xxx- are valid.
 
     $ cd ticket-1234-my-awesome-code
     
