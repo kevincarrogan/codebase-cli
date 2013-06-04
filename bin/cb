@@ -3,6 +3,10 @@ import sys
 import ConfigParser
 import re
 import requests
+import tempfile
+import os
+
+from subprocess import call
 
 from lxml import etree
 
@@ -18,6 +22,8 @@ AUTH_CREDENTIALS = (AUTH_USERNAME, AUTH_TOKEN,)
 PROJECT_NAME = config.get('project', 'name')
 
 API_URL = 'https://api3.codebasehq.com/%s/' % PROJECT_NAME
+
+EDITOR = os.environ.get('EDITOR', 'vim')
 
 
 class CommandNotFound(Exception):
@@ -162,7 +168,19 @@ def comments(user=''):
 @commander.command('comment', 'update')
 def comments_update(message=''):
     '''Creates a comment.'''
-    pass
+    with tempfile.NamedTemporaryFile() as comment_file:
+        call([EDITOR, comment_file.name])
+        with open(comment_file.name):
+            comment_file_aux = open(comment_file.name)
+            contents = comment_file_aux.read()
+
+    post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % contents
+    res = requests.post(
+        '%stickets/%s/notes' % (API_URL, ticket_no),
+        auth=AUTH_CREDENTIALS,
+        data=post_data,
+        headers={'content-type': 'application/xml'},
+    )
 
 
 if __name__ == "__main__":
