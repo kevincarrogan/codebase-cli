@@ -35,8 +35,6 @@ class Commander(object):
 
 
 commander = Commander()
-
-
 repo = Repo()
 
 
