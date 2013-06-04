@@ -61,6 +61,11 @@ commander = Commander()
 repo = Repo()
 
 
+def get_ticket_number():
+    branch_name = repo.active_branch.name
+    return re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
+
+
 @commander.command('ticket')
 def ticket(number):
     '''Links to the supplied ticket number for any subsequent commands.'''
@@ -73,7 +78,7 @@ def status(ticket_number=None):
     branch_name = repo.active_branch.name
     if not ticket_number:
         branch_name = repo.active_branch.name
-        ticket_no = re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
+        ticket_no = get_ticket_number()
     else:
         ticket_no = ticket_number
 
@@ -87,7 +92,7 @@ def status(ticket_number=None):
 def status_update(new_status=None):
     '''Sets the status of the ticket.'''
     branch_name = repo.active_branch.name
-    ticket_no = re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
+    ticket_no = get_ticket_number()
 
     invalid = False
 
