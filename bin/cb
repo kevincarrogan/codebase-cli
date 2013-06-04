@@ -160,7 +160,7 @@ def assigned_update(user):
 
 
 @commander.command('comments')
-def comments(user=''):
+def comments():
     '''Gets a log of the comments.'''
     pass
 
