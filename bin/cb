@@ -166,16 +166,17 @@ def comments(user=''):
 
 
 @commander.command('comment', 'update')
-def comments_update(message=''):
+def comments_update(message=None):
     '''Creates a comment.'''
-    with tempfile.NamedTemporaryFile() as comment_file:
-        call([EDITOR, comment_file.name])
-        with open(comment_file.name):
-            comment_file_aux = open(comment_file.name)
-            contents = comment_file_aux.read()
+    if not message:
+        with tempfile.NamedTemporaryFile() as comment_file:
+            call([EDITOR, comment_file.name])
+            with open(comment_file.name):
+                comment_file_aux = open(comment_file.name)
+                message = comment_file_aux.read()
 
-    if contents:
-        post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % contents
+    if message:
+        post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % message
         res = requests.post(
             '%stickets/%s/notes' % (API_URL, ticket_no),
             auth=AUTH_CREDENTIALS,
