@@ -60,17 +60,46 @@ def status(ticket_number=None):
 
 
 @commander.command('status', 'update')
-def status_update(new_status=''):
+def status_update(new_status=None):
     '''Sets the status of the ticket.'''
-    pass
+    branch_name = repo.active_branch.name
+    ticket_no = re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
+
+    if not new_status:
+        invalid = False
+        print 'Please select an option:'
+        res = requests.get('%stickets/statuses/' % API_URL, auth=AUTH_CREDENTIALS)
+        content = res.content
+        root = etree.fromstring(content)
+        statuses = root.xpath('/ticketing-statuses/ticketing-status')
+        ids = {i: status.find('id').text for i, status in enumerate(statuses, 1)}
+        for i, status in enumerate(statuses, 1):
+            print '%d: %s' % (i, status.find('name').text)
+        try:
+            status = int(raw_input('Please select from the above: '))
+        except ValueError:
+            invalid = True
+
+        if status not in range(1, len(statuses)) or invalid:
+            print 'Unknown value'
+        else:
+            post_data = '<ticket-note><content></content><changes><status-id>%s</status-id></changes></ticket-note>' % ids[status]
+            res = requests.post(
+                '%stickets/%s/notes' % (API_URL, ticket_no),
+                auth=AUTH_CREDENTIALS,
+                data=post_data,
+                headers={'content-type': 'application/xml'},
+            )
 
 
+@commander.command('assign')
 @commander.command('assigned')
 def assigned():
     '''Gets the currently assigned user.'''
     pass
 
 
+@commander.command('assign', 'update')
 @commander.command('assigned', 'update')
 def assigned_update(user):
     '''Sets the assigned user.'''
