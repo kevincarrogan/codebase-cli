@@ -123,6 +123,17 @@ def status_update(new_status=None):
             )
 
 
+@commander.command('statuses')
+def statuses():
+    '''Gets the available statuses for a ticket.'''
+    res = requests.get('%stickets/statuses' % API_URL, auth=AUTH_CREDENTIALS)
+    content = res.content
+    root = etree.fromstring(content)
+    statuses = root.xpath('/ticketing-statuses/ticketing-status')
+    for i, status in enumerate(statuses, 1):
+        print '%d: %s' % (i, status.find('name').text)
+
+
 @commander.command('assign')
 @commander.command('assigned')
 def assigned():
