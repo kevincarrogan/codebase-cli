@@ -47,10 +47,13 @@ def ticket(number):
 
 
 @commander.command('status')
-def status():
+def status(ticket_number=None):
     '''Gets the status of the current ticket.'''
     branch_name = repo.active_branch.name
-    ticket_no = re.match('ticket-([0-9]+)', branch_name).groups()[0]
+    if not ticket_number:
+        ticket_no = re.match('ticket-([0-9]+)', branch_name).groups()[0]
+    else:
+        ticket_no = ticket_number
 
     res = requests.get('%stickets/%s' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
     content = res.content
@@ -89,10 +92,19 @@ def comments_update(message=''):
 
 
 if __name__ == "__main__":
-    arguments = tuple(sys.argv[1:])
+    command_end = len(sys.argv)
+    command = tuple(sys.argv[1:command_end])
     try:
-        func = commander.function_map[arguments]
+        func = commander.function_map[command]
     except KeyError:
-        print 'Command does not exist'
+        command_end = command_end - 1
+        command = tuple(sys.argv[1:command_end])
+        arguments = tuple(sys.argv[command_end:])
+        try:
+            func = commander.function_map[command]
+            func(*arguments)
+        except KeyError:
+            print 'Command not found'
     else:
+        arg_found = True
         func()
