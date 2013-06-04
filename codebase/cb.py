@@ -1,49 +1,58 @@
-def command(fn, *args):
-    return fn
+class Commander(object):
+
+    def __init__(self):
+        self.function_map = {}
+
+    def command(self, *args):
+        key = args
+
+        def wrapper(func):
+            self.function_map[key] = func
+            return func
+
+        return wrapper
 
 
-@command('ticket')
+commander = Commander()
+
+
+@commander.command('ticket')
 def ticket(number):
     '''Links to the supplied ticket number for any subsequent commands.'''
     pass
 
 
-@command('status')
+@commander.command('status')
 def status():
     '''Gets the status of the current ticket.'''
     pass
 
 
-@command('status', 'update')
+@commander.command('status', 'update')
 def status_update(new_status=''):
     '''Sets the status of the ticket.'''
     pass
 
 
-@command('assign')
-@command('assigned')
+@commander.command('assigned')
 def assigned():
     '''Gets the currently assigned user.'''
     pass
 
 
-@command('assign', 'update')
-@command('assigned', 'update')
+@commander.command('assigned', 'update')
 def assigned_update(user):
     '''Sets the assigned user.'''
     pass
 
 
-@command('comment')
-@command('comments')
+@commander.command('comments')
 def comments(user=''):
     '''Gets a log of the comments.'''
     pass
 
 
-@command('comment', 'update')
-@command('comments', 'update')
+@commander.command('comment', 'update')
 def comments_update(message=''):
     '''Creates a comment.'''
     pass
-
