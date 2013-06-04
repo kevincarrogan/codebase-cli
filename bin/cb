@@ -174,13 +174,16 @@ def comments_update(message=''):
             comment_file_aux = open(comment_file.name)
             contents = comment_file_aux.read()
 
-    post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % contents
-    res = requests.post(
-        '%stickets/%s/notes' % (API_URL, ticket_no),
-        auth=AUTH_CREDENTIALS,
-        data=post_data,
-        headers={'content-type': 'application/xml'},
-    )
+    if contents:
+        post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % contents
+        res = requests.post(
+            '%stickets/%s/notes' % (API_URL, ticket_no),
+            auth=AUTH_CREDENTIALS,
+            data=post_data,
+            headers={'content-type': 'application/xml'},
+        )
+    else:
+        print 'Aborting due to empty update message'
 
 
 if __name__ == "__main__":
