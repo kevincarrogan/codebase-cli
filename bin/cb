@@ -20,6 +20,10 @@ PROJECT_NAME = config.get('project', 'name')
 API_URL = 'https://api3.codebasehq.com/%s/' % PROJECT_NAME
 
 
+class CommandNotFound(Exception):
+    pass
+
+
 class Commander(object):
 
     def __init__(self):
@@ -33,6 +37,24 @@ class Commander(object):
             return func
 
         return wrapper
+
+    def run_command(self, command_args):
+        command_found = False
+        command_end = len(command_args)
+        command = tuple(command_args[1:])
+        arguments = tuple(command_args[command_end:])
+        while not command_found and command:
+            try:
+                func = commander.function_map[command]
+            except KeyError:
+                command_end = command_end - 1
+                command = tuple(command_args[1:command_end])
+                arguments = tuple(command_args[command_end:])
+            else:
+                command_found = True
+                func(*arguments)
+        if not command_found:
+            raise CommandNotFound
 
 
 commander = Commander()
@@ -128,22 +150,9 @@ def comments_update(message=''):
 
 
 if __name__ == "__main__":
-    command_found = False
-    command_end = len(sys.argv)
-    command = tuple(sys.argv[1:])
-    arguments = tuple(sys.argv[command_end:])
-    while not command_found and command:
-        try:
-            func = commander.function_map[command]
-        except KeyError:
-            command_end = command_end - 1
-            command = tuple(sys.argv[1:command_end])
-            arguments = tuple(sys.argv[command_end:])
-        else:
-            command_found = True
-            try:
-                func(*arguments)
-            except TypeError:
-                print 'Too many arguments'
-    if not command_found:
+    try:
+        commander.run_command(sys.argv)
+    except CommandNotFound:
         print 'Command not found'
+    except TypeError:
+        print 'Incorrect number of arguments'
