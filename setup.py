@@ -1,5 +1,5 @@
 from os.path import join as pjoin
-from distutils.core import setup
+from setuptools import setup 
 
 setup(
     name='Codebase CLI',
