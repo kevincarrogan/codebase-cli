@@ -49,7 +49,7 @@ def status(ticket_number=None):
     '''Gets the status of the current ticket.'''
     branch_name = repo.active_branch.name
     if not ticket_number:
-        ticket_no = re.match('ticket-([0-9]+)', branch_name).groups()[0]
+        ticket_no = re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
     else:
         ticket_no = ticket_number
 
