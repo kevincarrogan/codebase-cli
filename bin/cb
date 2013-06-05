@@ -142,11 +142,33 @@ def statuses():
         print '%d: %s' % (i, status.find('name').text)
 
 
+def get_user_details():
+    res = requests.get('%sassignments' % API_URL, auth=AUTH_CREDENTIALS)
+    content = res.content
+    assignments_root = etree.fromstring(content)
+    user_details = {}
+    for assignment in assignments_root.xpath('/users/user'):
+        user_details[assignment.xpath('id')[0].text] = {
+            'first_name': assignment.xpath('first-name')[0].text,
+            'last_name': assignment.xpath('last-name')[0].text,
+        }
+
+    return user_details
+
+
 @commander.command('assign')
 @commander.command('assigned')
 def assigned():
     '''Gets the currently assigned user.'''
-    pass
+    ticket_no = get_ticket_number()
+
+    user_details = get_user_details()
+    res = requests.get('%stickets/%s' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
+    content = res.content
+    root = etree.fromstring(content)
+    assignee_id = root.xpath('/ticket/assignee-id')[0].text
+    assignee_details = user_details[assignee_id]
+    print '%s %s' % (assignee_details['first_name'], assignee_details['last_name']
 
 
 @commander.command('assign', 'update')
@@ -163,15 +185,7 @@ def comments():
     res = requests.get('%stickets/%s/notes' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
     content = res.content
     notes_root = etree.fromstring(content)
-    res = requests.get('%sassignments' % API_URL, auth=AUTH_CREDENTIALS)
-    content = res.content
-    assignments_root = etree.fromstring(content)
-    user_details = {}
-    for assignment in assignments_root.xpath('/users/user'):
-        user_details[assignment.xpath('id')[0].text] = {
-            'first_name': assignment.xpath('first-name')[0].text,
-            'last_name': assignment.xpath('last-name')[0].text,
-        }
+    user_details = get_user_details()
     for comment in notes_root.xpath('/ticket-notes/ticket-note'):
         created_at = datetime.strptime(comment.xpath('created-at')[0].text, '%Y-%m-%dT%H:%M:%SZ')
         content = comment.xpath('content')[0].text
