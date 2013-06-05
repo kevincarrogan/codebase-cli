@@ -78,12 +78,6 @@ def get_ticket_number():
         print 'Could not retrieve ticket number from branch name "%s".' % branch_name
 
 
-@commander.command('ticket')
-def ticket(number=None):
-    '''Links to the supplied ticket number for any subsequent commands.'''
-    pass
-
-
 @commander.command('status')
 def status(ticket_number=None):
     '''Gets the status of the current ticket.'''
