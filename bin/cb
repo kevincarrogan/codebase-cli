@@ -72,11 +72,14 @@ repo = Repo()
 
 def get_ticket_number():
     branch_name = repo.active_branch.name
-    return re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
+    try:
+        return re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
+    except AttributeError:
+        print 'Could not retrieve ticket number from branch name "%s".' % branch_name
 
 
 @commander.command('ticket')
-def ticket(number):
+def ticket(number=None):
     '''Links to the supplied ticket number for any subsequent commands.'''
     pass
 
