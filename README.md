@@ -14,23 +14,14 @@ For automatic discovery the name of the branch is important as it will map to th
 
     $ cd ticket-1234-my-awesome-code
     
-#### Explicit project
-
-For explicitly linking with a project.
-
-    $ cb project foo-bar
-    
-#### Explicit ticket
-
-For explicity linking with a ticket.
-
-    $ cb ticket xxx
-    
 ### Status
 
 To get the current status.
 
     $ cb status
+
+To get the status of a ticket explicitly.
+    $ cb status 1234
     
 To set the status via interface.
 
