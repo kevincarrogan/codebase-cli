@@ -21,6 +21,7 @@ To get the current status.
     $ cb status
 
 To get the status of a ticket explicitly.
+
     $ cb status 1234
     
 To set the status via interface.
