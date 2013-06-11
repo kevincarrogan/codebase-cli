@@ -67,10 +67,11 @@ class Commander(object):
 
 
 commander = Commander()
-repo = Repo()
 
 
 def get_ticket_number():
+    repo = Repo()
+
     branch_name = repo.active_branch.name
     try:
         return re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
