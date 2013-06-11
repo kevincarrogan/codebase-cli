@@ -6,6 +6,7 @@ import requests
 import tempfile
 import os
 import json
+import functools
 
 from datetime import datetime
 
@@ -69,6 +70,10 @@ class Commander(object):
 commander = Commander()
 
 
+authed_get = functools.partial(requests.get(auth=AUTH_CREDENTIALS))
+authed_post = functools.partial(requests.post(auth=AUTH_CREDENTIALS))
+
+
 def get_ticket_number():
     repo = Repo()
 
@@ -87,7 +92,7 @@ def status(ticket_number=None):
     else:
         ticket_no = ticket_number
 
-    res = requests.get('%stickets/%s' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/%s' % (API_URL, ticket_no))
     content = res.content
     root = etree.fromstring(content)
     print root.xpath('/ticket/status/name')[0].text
@@ -100,7 +105,7 @@ def status_update(new_status=None):
 
     invalid = False
 
-    res = requests.get('%stickets/statuses/' % API_URL, auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/statuses/' % API_URL, auth=AUTH_CREDENTIALS)
     content = res.content
     root = etree.fromstring(content)
     statuses = root.xpath('/ticketing-statuses/ticketing-status')
@@ -124,7 +129,7 @@ def status_update(new_status=None):
         print 'Unknown value'
     else:
         post_data = '<ticket-note><content></content><changes><status-id>%s</status-id></changes></ticket-note>' % ids[status]
-        res = requests.post(
+        res = authed_post(
             '%stickets/%s/notes' % (API_URL, ticket_no),
             auth=AUTH_CREDENTIALS,
             data=post_data,
@@ -135,7 +140,7 @@ def status_update(new_status=None):
 @commander.command('statuses')
 def statuses():
     '''Gets the available statuses for a ticket.'''
-    res = requests.get('%stickets/statuses' % API_URL, auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/statuses' % API_URL, auth=AUTH_CREDENTIALS)
     content = res.content
     root = etree.fromstring(content)
     statuses = root.xpath('/ticketing-statuses/ticketing-status')
@@ -144,7 +149,7 @@ def statuses():
 
 
 def get_user_details():
-    res = requests.get('%sassignments' % API_URL, auth=AUTH_CREDENTIALS)
+    res = authed_get('%sassignments' % API_URL, auth=AUTH_CREDENTIALS)
     content = res.content
     assignments_root = etree.fromstring(content)
     user_details = {}
@@ -164,7 +169,7 @@ def assigned():
     ticket_no = get_ticket_number()
 
     user_details = get_user_details()
-    res = requests.get('%stickets/%s' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/%s' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
     content = res.content
     root = etree.fromstring(content)
     assignee_id = root.xpath('/ticket/assignee-id')[0].text
@@ -183,7 +188,7 @@ def assigned_update(user):
 def comments():
     '''Gets a log of the comments.'''
     ticket_no = get_ticket_number()
-    res = requests.get('%stickets/%s/notes' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/%s/notes' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
     content = res.content
     notes_root = etree.fromstring(content)
     user_details = get_user_details()
@@ -225,7 +230,7 @@ def comments_update(message=None):
 
     if message:
         post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % message
-        res = requests.post(
+        res = authed_post(
             '%stickets/%s/notes' % (API_URL, ticket_no),
             auth=AUTH_CREDENTIALS,
             data=post_data,
