@@ -105,7 +105,7 @@ def status_update(new_status=None):
 
     invalid = False
 
-    res = authed_get('%stickets/statuses/' % API_URL, auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/statuses/' % API_URL)
     content = res.content
     root = etree.fromstring(content)
     statuses = root.xpath('/ticketing-statuses/ticketing-status')
@@ -140,7 +140,7 @@ def status_update(new_status=None):
 @commander.command('statuses')
 def statuses():
     '''Gets the available statuses for a ticket.'''
-    res = authed_get('%stickets/statuses' % API_URL, auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/statuses' % API_URL)
     content = res.content
     root = etree.fromstring(content)
     statuses = root.xpath('/ticketing-statuses/ticketing-status')
@@ -149,7 +149,7 @@ def statuses():
 
 
 def get_user_details():
-    res = authed_get('%sassignments' % API_URL, auth=AUTH_CREDENTIALS)
+    res = authed_get('%sassignments' % API_URL)
     content = res.content
     assignments_root = etree.fromstring(content)
     user_details = {}
@@ -169,7 +169,7 @@ def assigned():
     ticket_no = get_ticket_number()
 
     user_details = get_user_details()
-    res = authed_get('%stickets/%s' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/%s' % (API_URL, ticket_no))
     content = res.content
     root = etree.fromstring(content)
     assignee_id = root.xpath('/ticket/assignee-id')[0].text
@@ -188,7 +188,7 @@ def assigned_update(user):
 def comments():
     '''Gets a log of the comments.'''
     ticket_no = get_ticket_number()
-    res = authed_get('%stickets/%s/notes' % (API_URL, ticket_no), auth=AUTH_CREDENTIALS)
+    res = authed_get('%stickets/%s/notes' % (API_URL, ticket_no))
     content = res.content
     notes_root = etree.fromstring(content)
     user_details = get_user_details()
