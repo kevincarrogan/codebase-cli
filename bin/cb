@@ -12,8 +12,6 @@ from datetime import datetime
 
 from subprocess import call
 
-from lxml import etree
-
 from git.repo.base import Repo
 
 config = ConfigParser.SafeConfigParser()
@@ -92,10 +90,10 @@ def status(ticket_number=None):
     else:
         ticket_no = ticket_number
 
-    res = authed_get('%stickets/%s' % (API_URL, ticket_no))
-    content = res.content
-    root = etree.fromstring(content)
-    print root.xpath('/ticket/status/name')[0].text
+    res = authed_get('%stickets/%s.json' % (API_URL, ticket_no))
+    content = json.loads(res.content)
+
+    print content['ticket']['status']['name']
 
 
 @commander.command('status', 'update')
@@ -105,16 +103,14 @@ def status_update(new_status=None):
 
     invalid = False
 
-    res = authed_get('%stickets/statuses/' % API_URL)
-    content = res.content
-    root = etree.fromstring(content)
-    statuses = root.xpath('/ticketing-statuses/ticketing-status')
-    ids = {i: status.find('id').text for i, status in enumerate(statuses, 1)}
+    res = authed_get('%stickets/statuses.json' % API_URL)
+    statuses = json.loads(res.content)
+    ids = {i: status['ticketing_status']['id'] for i, status in enumerate(statuses, 1)}
 
     if not new_status:
         print 'Please select an option:'
         for i, status in enumerate(statuses, 1):
-            print '%d: %s' % (i, status.find('name').text)
+            print '%d: %s' % (i, status['ticketing_status']['name'])
         try:
             status = int(raw_input('Please select from the above: '))
         except ValueError:
@@ -140,23 +136,21 @@ def status_update(new_status=None):
 @commander.command('statuses')
 def statuses():
     '''Gets the available statuses for a ticket.'''
-    res = authed_get('%stickets/statuses' % API_URL)
-    content = res.content
-    root = etree.fromstring(content)
-    statuses = root.xpath('/ticketing-statuses/ticketing-status')
+    res = authed_get('%stickets/statuses.json' % API_URL)
+    statuses = json.loads(res.content)
     for i, status in enumerate(statuses, 1):
-        print '%d: %s' % (i, status.find('name').text)
+        print '%d: %s' % (i, status['ticketing_status']['name'])
 
 
 def get_user_details():
-    res = authed_get('%sassignments' % API_URL)
-    content = res.content
-    assignments_root = etree.fromstring(content)
+    res = authed_get('%sassignments.json' % API_URL)
+    users = json.loads(res.content)
     user_details = {}
-    for assignment in assignments_root.xpath('/users/user'):
-        user_details[assignment.xpath('id')[0].text] = {
-            'first_name': assignment.xpath('first-name')[0].text,
-            'last_name': assignment.xpath('last-name')[0].text,
+    for user in users:
+        user = user['user']
+        user_details[user['id']] = {
+            'first_name': user['first_name'],
+            'last_name': user['last_name'],
         }
 
     return user_details
@@ -169,10 +163,9 @@ def assigned():
     ticket_no = get_ticket_number()
 
     user_details = get_user_details()
-    res = authed_get('%stickets/%s' % (API_URL, ticket_no))
-    content = res.content
-    root = etree.fromstring(content)
-    assignee_id = root.xpath('/ticket/assignee-id')[0].text
+    res = authed_get('%stickets/%s.json' % (API_URL, ticket_no))
+    content = json.loads(res.content)
+    assignee_id = content['ticket']['assignee_id']
     assignee_details = user_details[assignee_id]
     print '%s %s' % (assignee_details['first_name'], assignee_details['last_name'])
 
@@ -188,32 +181,32 @@ def assigned_update(user):
 def comments():
     '''Gets a log of the comments.'''
     ticket_no = get_ticket_number()
-    res = authed_get('%stickets/%s/notes' % (API_URL, ticket_no))
-    content = res.content
-    notes_root = etree.fromstring(content)
+    res = authed_get('%stickets/%s/notes.json' % (API_URL, ticket_no))
+    content = json.loads(res.content)
     user_details = get_user_details()
-    for comment in notes_root.xpath('/ticket-notes/ticket-note'):
-        created_at = datetime.strptime(comment.xpath('created-at')[0].text, '%Y-%m-%dT%H:%M:%SZ')
-        content = comment.xpath('content')[0].text
-        update = json.loads(comment.xpath('updates')[0].text)
-        user_id = comment.xpath('user-id')[0].text
+    for comment in content:
+        comment = comment['ticket_note']
+        created_at = datetime.strptime(comment['created_at'], '%Y-%m-%dT%H:%M:%SZ')
+        content = comment['content']
+        user_id = comment['user_id']
+        updates = json.loads(comment['updates'])
         author_details = user_details[user_id]
         print 'Author: %s %s' % (author_details['first_name'], author_details['last_name'])
         print 'Date:   %s\n' % created_at.strftime('%c')
         if content:
             print content
             print ''
-        if update:
-            if 'assignee_id' in update:
-                print 'Assignee changed from "%s" to "%s"' % (update['assignee_id'][0], update['assignee_id'][1])
-            if 'status_id' in update:
-                print 'Status changed from "%s" to "%s"' % (update['status_id'][0], update['status_id'][1])
-            if 'priority_id' in update:
-                print 'Priority changed from "%s" to "%s"' % (update['priority_id'][0], update['priority_id'][1])
-            if 'category_id' in update:
-                print 'Category changed from "%s" to "%s"' % (update['category_id'][0], update['category_id'][1])
-            if 'milestone_id' in update:
-                print 'Milestone changed from "%s" to "%s"' % (update['milestone_id'][0], update['milestone_id'][1])
+        if updates:
+            if 'assignee_id' in updates:
+                print 'Assignee changed from "%s" to "%s"' % (updates['assignee_id'][0], updates['assignee_id'][1])
+            if 'status_id' in updates:
+                print 'Status changed from "%s" to "%s"' % (updates['status_id'][0], updates['status_id'][1])
+            if 'priority_id' in updates:
+                print 'Priority changed from "%s" to "%s"' % (updates['priority_id'][0], updates['priority_id'][1])
+            if 'category_id' in updates:
+                print 'Category changed from "%s" to "%s"' % (updates['category_id'][0], updates['category_id'][1])
+            if 'milestone_id' in updates:
+                print 'Milestone changed from "%s" to "%s"' % (updates['milestone_id'][0], updates['milestone_id'][1])
             print ''
 
 

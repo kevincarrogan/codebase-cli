@@ -5,5 +5,5 @@ setup(
     name='Codebase CLI',
     version='0.0.1',
     scripts=[pjoin('bin', 'cb')],
-    requires=['requests', 'gitpython', 'lxml'],
+    requires=['requests', 'gitpython'],
 )
