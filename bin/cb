@@ -7,6 +7,7 @@ import tempfile
 import os
 import json
 import functools
+import collections
 
 from datetime import datetime
 
@@ -45,6 +46,13 @@ class Commander(object):
             return func
 
         return wrapper
+
+    def help(self):
+        print 'usage: cb [command]'
+        print 'The available commands are:'
+        for key in sorted(self.function_map):
+            func = self.function_map[key]
+            print '    %s %s' % (' '.join(key).ljust(20), func.func_doc)
 
     def run_command(self, command_args):
         command_found = False
@@ -236,5 +244,6 @@ if __name__ == "__main__":
         commander.run_command(sys.argv)
     except CommandNotFound:
         print 'Command not found'
+        commander.help()
     except TypeError:
         print 'Incorrect number of arguments'
