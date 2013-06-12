@@ -58,19 +58,22 @@ class Commander(object):
         command_found = False
         command_end = len(command_args)
         command = tuple(command_args[1:])
-        arguments = tuple(command_args[command_end:])
-        while not command_found and command:
-            try:
-                func = commander.function_map[command]
-            except KeyError:
-                command_end = command_end - 1
-                command = tuple(command_args[1:command_end])
-                arguments = tuple(command_args[command_end:])
-            else:
-                command_found = True
-                func(*arguments)
-        if not command_found:
-            raise CommandNotFound
+        if command == ('help',):
+            commander.help()
+        else:
+            arguments = tuple(command_args[command_end:])
+            while not command_found and command:
+                try:
+                    func = commander.function_map[command]
+                except KeyError:
+                    command_end = command_end - 1
+                    command = tuple(command_args[1:command_end])
+                    arguments = tuple(command_args[command_end:])
+                else:
+                    command_found = True
+                    func(*arguments)
+            if not command_found:
+                raise CommandNotFound
 
 
 commander = Commander()
@@ -244,6 +247,5 @@ if __name__ == "__main__":
         commander.run_command(sys.argv)
     except CommandNotFound:
         print 'Command not found'
-        commander.help()
     except TypeError:
         print 'Incorrect number of arguments'
