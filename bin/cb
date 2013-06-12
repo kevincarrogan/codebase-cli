@@ -70,8 +70,8 @@ class Commander(object):
 commander = Commander()
 
 
-authed_get = functools.partial(requests.get(auth=AUTH_CREDENTIALS))
-authed_post = functools.partial(requests.post(auth=AUTH_CREDENTIALS))
+authed_get = functools.partial(requests.get, auth=AUTH_CREDENTIALS)
+authed_post = functools.partial(requests.post, auth=AUTH_CREDENTIALS)
 
 
 def get_ticket_number():
