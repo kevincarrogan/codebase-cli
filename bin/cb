@@ -174,7 +174,7 @@ def assigned():
     root = etree.fromstring(content)
     assignee_id = root.xpath('/ticket/assignee-id')[0].text
     assignee_details = user_details[assignee_id]
-    print '%s %s' % (assignee_details['first_name'], assignee_details['last_name']
+    print '%s %s' % (assignee_details['first_name'], assignee_details['last_name'])
 
 
 @commander.command('assign', 'update')
