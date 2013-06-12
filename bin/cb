@@ -127,7 +127,6 @@ def status_update(new_status=None):
         post_data = '<ticket-note><content></content><changes><status-id>%s</status-id></changes></ticket-note>' % ids[status]
         res = authed_post(
             '%stickets/%s/notes' % (API_URL, ticket_no),
-            auth=AUTH_CREDENTIALS,
             data=post_data,
             headers={'content-type': 'application/xml'},
         )
@@ -225,7 +224,6 @@ def comments_update(message=None):
         post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % message
         res = authed_post(
             '%stickets/%s/notes' % (API_URL, ticket_no),
-            auth=AUTH_CREDENTIALS,
             data=post_data,
             headers={'content-type': 'application/xml'},
         )
