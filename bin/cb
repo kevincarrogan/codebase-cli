@@ -83,6 +83,18 @@ authed_get = functools.partial(requests.get, auth=AUTH_CREDENTIALS)
 authed_post = functools.partial(requests.post, auth=AUTH_CREDENTIALS)
 
 
+def api_get(url):
+    return json.loads(authed_get('%s%s.json' % (API_URL, url))
+
+
+def api_post(url, data):
+    return authed_post(
+                '%s%s' % (API_URL, url),
+                data=data,
+                headers={'content-type': 'application/xml'},
+            )
+
+
 def get_ticket_number():
     repo = Repo()
 
@@ -101,8 +113,7 @@ def status(ticket_number=None):
     else:
         ticket_no = ticket_number
 
-    res = authed_get('%stickets/%s.json' % (API_URL, ticket_no))
-    content = json.loads(res.content)
+    content = api_get('tickets/%s' % ticket_no)
 
     print content['ticket']['status']['name']
 
@@ -114,8 +125,7 @@ def status_update(new_status=None):
 
     invalid = False
 
-    res = authed_get('%stickets/statuses.json' % API_URL)
-    statuses = json.loads(res.content)
+    statuses = api_get('tickets/statuses')
     ids = {i: status['ticketing_status']['id'] for i, status in enumerate(statuses, 1)}
 
     if not new_status:
@@ -136,25 +146,19 @@ def status_update(new_status=None):
         print 'Unknown value'
     else:
         post_data = '<ticket-note><content></content><changes><status-id>%s</status-id></changes></ticket-note>' % ids[status]
-        res = authed_post(
-            '%stickets/%s/notes' % (API_URL, ticket_no),
-            data=post_data,
-            headers={'content-type': 'application/xml'},
-        )
+        api_post('tickets/%s/notes' % ticket_no, post_data)
 
 
 @commander.command('statuses')
 def statuses():
     '''Gets the available statuses for a ticket.'''
-    res = authed_get('%stickets/statuses.json' % API_URL)
-    statuses = json.loads(res.content)
+    statuses = api_get('tickets/statuses')
     for i, status in enumerate(statuses, 1):
         print '%d: %s' % (i, status['ticketing_status']['name'])
 
 
 def get_user_details():
-    res = authed_get('%sassignments.json' % API_URL)
-    users = json.loads(res.content)
+    users = api_get('assignments')
     user_details = {}
     for user in users:
         user = user['user']
@@ -173,8 +177,7 @@ def assigned():
     ticket_no = get_ticket_number()
 
     user_details = get_user_details()
-    res = authed_get('%stickets/%s.json' % (API_URL, ticket_no))
-    content = json.loads(res.content)
+    content = api_get('tickets/%s' % ticket_no)
     assignee_id = content['ticket']['assignee_id']
     assignee_details = user_details[assignee_id]
     print '%s %s' % (assignee_details['first_name'], assignee_details['last_name'])
@@ -191,8 +194,7 @@ def assigned_update(user):
 def comments():
     '''Gets a log of the comments.'''
     ticket_no = get_ticket_number()
-    res = authed_get('%stickets/%s/notes.json' % (API_URL, ticket_no))
-    content = json.loads(res.content)
+    content = api_get('tickets/%s/notes' % ticket_no)
     user_details = get_user_details()
     for comment in content:
         comment = comment['ticket_note']
@@ -233,11 +235,7 @@ def comments_update(message=None):
 
     if message:
         post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % message
-        res = authed_post(
-            '%stickets/%s/notes' % (API_URL, ticket_no),
-            data=post_data,
-            headers={'content-type': 'application/xml'},
-        )
+        api_post('tickets/%s/notes' % ticket_no, post_data)
     else:
         print 'Aborting due to empty update message'
 
