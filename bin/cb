@@ -12,9 +12,8 @@ import collections
 
 from datetime import datetime
 
-from subprocess import call
+from subprocess import call, check_output, STDOUT
 
-from git.repo.base import Repo
 
 EDITOR = os.environ.get('EDITOR', 'vim')
 
@@ -111,9 +110,7 @@ def api_post(url, data):
 
 
 def get_ticket_number():
-    repo = Repo()
-
-    branch_name = repo.active_branch.name
+    branch_name = check_output('git rev-parse --abbrev-ref HEAD', stderr=STDOUT, shell=True)[:-1]
     try:
         return re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
     except AttributeError:
