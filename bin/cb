@@ -16,19 +16,6 @@ from subprocess import call
 
 from git.repo.base import Repo
 
-config = ConfigParser.SafeConfigParser()
-config.read('.cbconfig')
-
-_user_agent = 'codebase-cli/dev'
-_auth_realm = 'Application'
-AUTH_USERNAME = config.get('auth', 'username')
-AUTH_TOKEN = config.get('auth', 'token')
-AUTH_CREDENTIALS = (AUTH_USERNAME, AUTH_TOKEN,)
-
-PROJECT_NAME = config.get('project', 'name')
-
-API_URL = 'https://api3.codebasehq.com/%s/' % PROJECT_NAME
-
 EDITOR = os.environ.get('EDITOR', 'vim')
 
 
@@ -109,10 +96,6 @@ class Commander(object):
 
 
 commander = Commander()
-
-
-authed_get = functools.partial(get, auth=AUTH_CREDENTIALS)
-authed_post = functools.partial(post, auth=AUTH_CREDENTIALS)
 
 
 def api_get(url):
@@ -267,6 +250,38 @@ def comments_update(message=None):
 
 if __name__ == "__main__":
     try:
+        config = ConfigParser.SafeConfigParser()
+
+        if not os.path.exists('.cbconfig'):
+            print 'Please enter the following details:'
+            config.add_section('auth')
+            username = raw_input('Your codebase API username: ')
+            config.set('auth', 'username', username)
+            token = raw_input('Your codebase API key: ')
+            config.set('auth', 'token', token)
+
+            config.add_section('project')
+            project = raw_input('The codebase project for this directory: ')
+            config.set('project', 'name', project)
+
+            with open('.cbconfig', 'wb') as config_file:
+                config.write(config_file)
+        else:
+            config.read('.cbconfig')
+
+        _user_agent = 'codebase-cli/dev'
+        _auth_realm = 'Application'
+        AUTH_USERNAME = config.get('auth', 'username')
+        AUTH_TOKEN = config.get('auth', 'token')
+        AUTH_CREDENTIALS = (AUTH_USERNAME, AUTH_TOKEN,)
+
+        PROJECT_NAME = config.get('project', 'name')
+
+        API_URL = 'https://api3.codebasehq.com/%s/' % PROJECT_NAME
+
+        authed_get = functools.partial(get, auth=AUTH_CREDENTIALS)
+        authed_post = functools.partial(post, auth=AUTH_CREDENTIALS)
+
         commander.run_command(sys.argv)
     except CommandNotFound:
         error('Command not found')
