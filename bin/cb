@@ -209,16 +209,9 @@ def comments():
             print content
             print ''
         if updates:
-            if 'assignee_id' in updates:
-                print 'Assignee changed from "%s" to "%s"' % (updates['assignee_id'][0], updates['assignee_id'][1])
-            if 'status_id' in updates:
-                print 'Status changed from "%s" to "%s"' % (updates['status_id'][0], updates['status_id'][1])
-            if 'priority_id' in updates:
-                print 'Priority changed from "%s" to "%s"' % (updates['priority_id'][0], updates['priority_id'][1])
-            if 'category_id' in updates:
-                print 'Category changed from "%s" to "%s"' % (updates['category_id'][0], updates['category_id'][1])
-            if 'milestone_id' in updates:
-                print 'Milestone changed from "%s" to "%s"' % (updates['milestone_id'][0], updates['milestone_id'][1])
+            for k, v in updates.iteritems():
+                update_type = k.replace('_id', '').title()
+                print '%s changed from "%s" to "%s"' % (update_type, v[0], v[1])
             print ''
 
 
