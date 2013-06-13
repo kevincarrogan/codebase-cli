@@ -234,6 +234,8 @@ def comments():
 @commander.command('comments', 'update')
 def comments_update(message=None):
     '''Creates a comment.'''
+    ticket_no = get_ticket_number()
+
     if not message:
         with tempfile.NamedTemporaryFile() as comment_file:
             call([EDITOR, comment_file.name])
