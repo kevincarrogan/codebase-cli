@@ -84,7 +84,7 @@ authed_post = functools.partial(requests.post, auth=AUTH_CREDENTIALS)
 
 
 def api_get(url):
-    return json.loads(authed_get('%s%s.json' % (API_URL, url)))
+    return json.loads(authed_get('%s%s.json' % (API_URL, url)).content)
 
 
 def api_post(url, data):
