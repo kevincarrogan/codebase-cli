@@ -247,6 +247,18 @@ def comments_update(message=None):
         error('Aborting due to empty update message')
 
 
+@commander.command('description')
+@commander.command('desc')
+@commander.command('summary')
+def summary():
+    '''Shows the description of the ticket.'''
+    ticket_no = get_ticket_number()
+
+    content = api_get('tickets/%s' % ticket_no)
+
+    print content['ticket']['summary']
+
+
 if __name__ == "__main__":
     try:
         config = ConfigParser.SafeConfigParser()
