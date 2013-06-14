@@ -204,6 +204,7 @@ def assigned_update(user):
 
 @commander.command('comments')
 @commander.command('log')
+@commander.command('notes')
 def comments():
     '''Gets a log of the comments.'''
     ticket_no = get_ticket_number()
@@ -230,6 +231,7 @@ def comments():
 
 @commander.command('comment', 'update')
 @commander.command('comments', 'update')
+@commander.command('notes', 'update')
 def comments_update(message=None):
     '''Creates a comment.'''
     ticket_no = get_ticket_number()
