@@ -262,12 +262,29 @@ def summary():
     print content['ticket']['summary']
 
 
+@commander.command('open')
+def open_browser():
+    '''Opens the current ticket in a browser window.'''
+    ticket_no = get_ticket_number()
+
+    os.system(
+        'open http://%s/projects/%s/tickets/%s' % (
+            CODEBASE_URL,
+            PROJECT_NAME,
+            ticket_no,
+        )
+    )
+
+
 if __name__ == "__main__":
     try:
         config = ConfigParser.SafeConfigParser()
 
         if not os.path.exists('.cbconfig'):
             print 'Please enter the following details:'
+            config.add_section('main')
+            url = raw_input('Your codebase URL e.g. foo.codebasehq.com: ')
+            config.set('main', 'url', url)
             config.add_section('auth')
             username = raw_input('Your codebase API username: ')
             config.set('auth', 'username', username)
@@ -292,6 +309,8 @@ if __name__ == "__main__":
         PROJECT_NAME = config.get('project', 'name')
 
         API_URL = 'https://api3.codebasehq.com/%s/' % PROJECT_NAME
+
+        CODEBASE_URL = config.get('main', 'url')
 
         authed_get = functools.partial(get, auth=AUTH_CREDENTIALS)
         authed_post = functools.partial(post, auth=AUTH_CREDENTIALS)
