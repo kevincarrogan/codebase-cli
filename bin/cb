@@ -191,8 +191,11 @@ def assigned():
     user_details = get_user_details()
     content = api_get('tickets/%s' % ticket_no)
     assignee_id = content['ticket']['assignee_id']
-    assignee_details = user_details[assignee_id]
-    print '%s %s' % (assignee_details['first_name'], assignee_details['last_name'])
+    try:
+        assignee_details = user_details[assignee_id]
+        print '%s %s' % (assignee_details['first_name'], assignee_details['last_name'])
+    except KeyError:
+        print 'Not assigned'
 
 
 @commander.command('assign', 'update')
