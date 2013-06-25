@@ -200,9 +200,27 @@ def assigned():
 
 @commander.command('assign', 'update')
 @commander.command('assigned', 'update')
-def assigned_update(user):
+def assigned_update():
     '''Sets the assigned user.'''
-    pass
+    ticket_no = get_ticket_number()
+
+    user_details = get_user_details()
+    user_id_map = {}
+
+    print 'Please select an option:'
+    for i, (user_id, user_details) in enumerate(user_details.iteritems(), 1):
+        print '%d: %s %s' % (i, user_details['first_name'], user_details['last_name'])
+        user_id_map[i] = user_id
+    print '0: Unassign'
+    user = int(raw_input('Please select from the above: '))
+
+    if user == 0:
+        user_id = ''
+    else:
+        user_id = str(user_id_map[user])
+
+    post_data = '<ticket-note><content></content><changes><assignee-id>%s</assignee-id></changes></ticket-note>' % user_id
+    api_post('tickets/%s/notes' % ticket_no, post_data)
 
 
 @commander.command('comments')
