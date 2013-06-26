@@ -297,6 +297,82 @@ def open_browser():
     )
 
 
+@commander.command('ticket', 'update')
+def ticket_update():
+    '''Updates ticket data.'''
+    ticket_no = get_ticket_number()
+
+    update_note = False
+    message = ''
+    while True:
+        inpt = raw_input('Do you want to update the notes? [y/N] ')
+        inpt = inpt.lower()
+        if inpt in ('y', 'n', ''):
+            if inpt == 'y':
+                update_note = True
+        break
+
+    if update_note:
+        with tempfile.NamedTemporaryFile() as comment_file:
+            call([EDITOR, comment_file.name])
+            with open(comment_file.name):
+                comment_file_aux = open(comment_file.name)
+                message = comment_file_aux.read()
+
+    update_status = False
+    while True:
+        inpt = raw_input('Do you want to update the status? [y/N] ')
+        inpt = inpt.lower()
+        if inpt in ('y', 'n', ''):
+            if inpt == 'y':
+                update_status = True
+            break
+
+    if update_status:
+        statuses = api_get('tickets/statuses')
+        ids = {i: status['ticketing_status']['id'] for i, status in enumerate(statuses, 1)}
+
+        print 'Please select an option:'
+        for i, status in enumerate(statuses, 1):
+            print '%d: %s' % (i, status['ticketing_status']['name'])
+        status = int(raw_input('Please select from the above: '))
+
+    update_assigned = False
+    while True:
+        inpt = raw_input('Do you want to update the assigned user? [y/N] ')
+        inpt = inpt.lower()
+        if inpt in ('y', 'n', ''):
+            if inpt == 'y':
+                update_assigned = True
+            break
+
+    if update_assigned:
+        user_details = get_user_details()
+        user_id_map = {}
+        print 'Please select an option:'
+        for i, (user_id, user_details) in enumerate(user_details.iteritems(), 1):
+            print '%d: %s %s' % (i, user_details['first_name'], user_details['last_name'])
+            user_id_map[i] = user_id
+        print '0: Unassign'
+        user = int(raw_input('Please select from the above: '))
+
+        if user == 0:
+            user_id = ''
+        else:
+            user_id = str(user_id_map[user])
+
+    status_xml = ''
+    if update_status:
+        status_xml = '<status-id>%s</status-id>' % status
+
+    assignee_xml = ''
+    if update_assigned:
+        assignee_xml = '<assignee-id>%s</assignee-id>' % user_id
+
+    post_data = '<ticket-note><content>%s</content><changes>%s%s</changes></ticket-note>' % (message, status_xml, assignee_xml)
+    api_post('tickets/%s/notes' % ticket_no, post_data)
+
+
 if __name__ == "__main__":
     try:
         config = ConfigParser.SafeConfigParser()
