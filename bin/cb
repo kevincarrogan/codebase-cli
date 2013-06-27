@@ -330,7 +330,7 @@ def ticket_update():
 
     if update_status:
         statuses = api_get('tickets/statuses')
-        ids = {i: status['ticketing_status']['id'] for i, status in enumerate(statuses, 1)}
+        status_ids = {i: status['ticketing_status']['id'] for i, status in enumerate(statuses, 1)}
 
         print 'Please select an option:'
         for i, status in enumerate(statuses, 1):
@@ -363,7 +363,7 @@ def ticket_update():
 
     status_xml = ''
     if update_status:
-        status_xml = '<status-id>%s</status-id>' % status
+        status_xml = '<status-id>%s</status-id>' % status_ids[status]
 
     assignee_xml = ''
     if update_assigned:
