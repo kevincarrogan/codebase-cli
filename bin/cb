@@ -155,7 +155,7 @@ def get_ticket_note_xml(content=None, status_id=None, assignee_id=None):
 
 def post_ticket_note(ticket_number, content=None, status_id=None, assignee_id=None):
     xml = get_ticket_note_xml(content, status_id, assignee_id)
-    api_post('tickets/%s/notes' % ticket_no, xml)
+    api_post('tickets/%s/notes' % ticket_number, xml)
 
 
 @commander.command('status')
