@@ -117,6 +117,20 @@ def get_ticket_number():
         error('Could not retrieve ticket number from branch name "%s".' % branch_name)
 
 
+def get_ticket_note_xml(content=None, status_id=None, assignee_id=None):
+    if not content:
+        content = ''
+
+    changes = []
+    if status_id:
+        changes.append('<status-id>%s</status-id>' % status_id)
+
+    if assignee_id:
+        changes.append('<assignee-id>%s</assignee-id>' % assignee_id)
+
+    return '<ticket-note><content>%s</content><changes>%s</changes></ticket-note>' % (content, ''.join(changes))
+
+
 @commander.command('status')
 def status(ticket_number=None):
     '''Gets the status of the current ticket.'''
@@ -157,7 +171,7 @@ def status_update(new_status=None):
     if status not in range(1, len(statuses)) or invalid:
         print 'Unknown value'
     else:
-        post_data = '<ticket-note><content></content><changes><status-id>%s</status-id></changes></ticket-note>' % ids[status]
+        post_data = get_ticket_note_xml(status_id=ids[status])
         api_post('tickets/%s/notes' % ticket_no, post_data)
 
 
@@ -220,7 +234,7 @@ def assigned_update():
     else:
         user_id = str(user_id_map[user])
 
-    post_data = '<ticket-note><content></content><changes><assignee-id>%s</assignee-id></changes></ticket-note>' % user_id
+    post_data = get_ticket_note_xml(assignee_id=user_id)
     api_post('tickets/%s/notes' % ticket_no, post_data)
 
 
@@ -266,7 +280,7 @@ def comments_update(message=None):
                 message = comment_file_aux.read()
 
     if message:
-        post_data = '<ticket-note><content>%s</content><changes></changes></ticket-note>' % message
+        post_data = get_ticket_note_xml(content=message)
         api_post('tickets/%s/notes' % ticket_no, post_data)
     else:
         error('Aborting due to empty update message')
@@ -304,6 +318,8 @@ def ticket_update():
     '''Updates ticket data.'''
     ticket_no = get_ticket_number()
 
+    tickets_args = {}
+
     update_note = False
     message = ''
     while True:
@@ -320,6 +336,7 @@ def ticket_update():
             with open(comment_file.name):
                 comment_file_aux = open(comment_file.name)
                 message = comment_file_aux.read()
+        ticket_args['content'] = message
 
     update_status = False
     while True:
@@ -338,6 +355,8 @@ def ticket_update():
         for i, status in enumerate(statuses, 1):
             print '%d: %s' % (i, status['ticketing_status']['name'])
         status = int(raw_input('Please select from the above: '))
+
+        ticket_args['status_id'] = status_ids[status]
 
     update_assigned = False
     while True:
@@ -363,15 +382,9 @@ def ticket_update():
         else:
             user_id = str(user_id_map[user])
 
-    status_xml = ''
-    if update_status:
-        status_xml = '<status-id>%s</status-id>' % status_ids[status]
+        ticket_args['assignee_id'] = user_id
 
-    assignee_xml = ''
-    if update_assigned:
-        assignee_xml = '<assignee-id>%s</assignee-id>' % user_id
-
-    post_data = '<ticket-note><content>%s</content><changes>%s%s</changes></ticket-note>' % (message, status_xml, assignee_xml)
+    post_data = get_ticket_note_xml(**ticket_args)
     api_post('tickets/%s/notes' % ticket_no, post_data)
 
 
@@ -392,10 +405,7 @@ def mark_reviewing():
 
     review_status_id = status_ids['In Review']
 
-    status_xml = '<status-id>%s</status-id>' % review_status_id
-    assignee_xml = '<assignee-id>%s</assignee-id>' % user_id
-
-    post_data = '<ticket-note><content></content><changes>%s%s</changes></ticket-note>' % (status_xml, assignee_xml)
+    post_data = get_ticket_note_xml(status_id=review_status_id, assignee_id=assignee_xml)
     api_post('tickets/%s/notes' % ticket_no, post_data)
 
 
