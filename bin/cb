@@ -343,7 +343,7 @@ def ticket_update():
     '''Updates ticket data.'''
     ticket_no = get_ticket_number()
 
-    tickets_args = {}
+    ticket_args = {}
 
     update_note = False
     message = ''
