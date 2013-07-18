@@ -287,13 +287,13 @@ def summary():
 def open_browser(ticket_number=None):
     '''Opens the current ticket in a browser window.'''
     if not ticket_number:
-        ticket_no = get_ticket_number()
+        ticket_number = get_ticket_number()
 
     os.system(
         'open http://%s/projects/%s/tickets/%s' % (
             CODEBASE_URL,
             PROJECT_NAME,
-            ticket_no,
+            ticket_number,
         )
     )
 
