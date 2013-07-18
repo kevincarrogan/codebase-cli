@@ -392,6 +392,7 @@ def ticket_update():
 
 @commander.command('review')
 def mark_reviewing():
+    '''Marks a ticket as in review for the current user.'''
     ticket_no = get_ticket_number()
 
     user_details = get_user_details()
