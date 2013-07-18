@@ -109,12 +109,34 @@ def api_post(url, data):
             ).read()
 
 
+@commander.command('ticket_number')
+def ticket_number():
+    print get_ticket_number()
+
+
 def get_ticket_number():
     branch_name = check_output('git rev-parse --abbrev-ref HEAD', stderr=STDOUT, shell=True)[:-1]
+    auto_ticket_number = config_ticket_number = None
+
     try:
-        return re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
+        auto_ticket_number = re.match('^(?:ticket-)?([0-9]+)', branch_name).groups()[0]
     except AttributeError:
-        error('Could not retrieve ticket number from branch name "%s".' % branch_name)
+        pass
+
+    try:
+        config_ticket_number = config.get('ticket', 'number')
+    except ConfigParser.NoSectionError, ConfigParser.NoOptionError:
+        pass
+
+    if auto_ticket_number is None and config_ticket_number is None:
+        error('Could not retrieve ticket number from config or branch name "%s".' % branch_name)
+
+    if auto_ticket_number:
+        if config_ticket_number:
+            print 'Using ticket number %s from branch name instead of config' % auto_ticket_number
+        return auto_ticket_number
+
+    return config_ticket_number
 
 
 def get_ticket_note_xml(content=None, status_id=None, assignee_id=None):
@@ -409,6 +431,15 @@ def mark_reviewing():
     review_status_id = status_ids['In Review']
 
     post_ticket_note(ticket_no, status_id=review_status_id, assignee_id=user_id)
+
+
+@commander.command('ticket', 'set')
+def set_ticket(ticket_number):
+    '''Sets a ticket for when auto-discovery is not possible'''
+    config.add_section('ticket')
+    config.set('ticket', 'number', ticket_number)
+    with open('.cbconfig', 'wb') as config_file:
+        config.write(config_file)
 
 
 if __name__ == "__main__":
