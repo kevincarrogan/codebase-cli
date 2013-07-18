@@ -131,6 +131,11 @@ def get_ticket_note_xml(content=None, status_id=None, assignee_id=None):
     return '<ticket-note><content>%s</content><changes>%s</changes></ticket-note>' % (content, ''.join(changes))
 
 
+def post_ticket_note(ticket_number, content=None, status_id=None, assignee_id=None):
+    xml = get_ticket_note_xml(content, status_id, assignee_id)
+    api_post('tickets/%s/notes' % ticket_no, xml)
+
+
 @commander.command('status')
 def status(ticket_number=None):
     '''Gets the status of the current ticket.'''
@@ -171,8 +176,7 @@ def status_update(new_status=None):
     if status not in range(1, len(statuses)) or invalid:
         print 'Unknown value'
     else:
-        post_data = get_ticket_note_xml(status_id=ids[status])
-        api_post('tickets/%s/notes' % ticket_no, post_data)
+        post_ticket_note(ticket_no, status_id=ids[status])
 
 
 @commander.command('statuses')
@@ -234,8 +238,7 @@ def assigned_update():
     else:
         user_id = str(user_id_map[user])
 
-    post_data = get_ticket_note_xml(assignee_id=user_id)
-    api_post('tickets/%s/notes' % ticket_no, post_data)
+    post_ticket_note(ticket_no, assignee_id=user_id)
 
 
 @commander.command('comments')
@@ -384,8 +387,7 @@ def ticket_update():
 
         ticket_args['assignee_id'] = user_id
 
-    post_data = get_ticket_note_xml(**ticket_args)
-    api_post('tickets/%s/notes' % ticket_no, post_data)
+    post_ticket_note(ticket_no, **ticket_args)
 
 
 @commander.command('review')
@@ -405,8 +407,7 @@ def mark_reviewing():
 
     review_status_id = status_ids['In Review']
 
-    post_data = get_ticket_note_xml(status_id=review_status_id, assignee_id=assignee_xml)
-    api_post('tickets/%s/notes' % ticket_no, post_data)
+    post_ticket_note(ticket_no, status_id=review_status_id, assignee_id=user_id)
 
 
 if __name__ == "__main__":
