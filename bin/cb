@@ -284,9 +284,10 @@ def summary():
 
 
 @commander.command('open')
-def open_browser():
+def open_browser(ticket_number=None):
     '''Opens the current ticket in a browser window.'''
-    ticket_no = get_ticket_number()
+    if not ticket_number:
+        ticket_no = get_ticket_number()
 
     os.system(
         'open http://%s/projects/%s/tickets/%s' % (
