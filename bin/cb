@@ -177,6 +177,7 @@ def get_user_details():
         user_details[user['id']] = {
             'first_name': user['first_name'],
             'last_name': user['last_name'],
+            'username': user['username'],
         }
 
     return user_details
@@ -371,6 +372,30 @@ def ticket_update():
         assignee_xml = '<assignee-id>%s</assignee-id>' % user_id
 
     post_data = '<ticket-note><content>%s</content><changes>%s%s</changes></ticket-note>' % (message, status_xml, assignee_xml)
+    api_post('tickets/%s/notes' % ticket_no, post_data)
+
+
+@commander.command('review')
+def mark_reviewing():
+    ticket_no = get_ticket_number()
+
+    user_details = get_user_details()
+    user_id_map = {}
+
+    for user_id, user_details in user_details.iteritems():
+        user_id_map[user_details['username']] = user_id
+
+    user_id = user_id_map[AUTH_USERNAME.split('/')[1]]
+
+    statuses = api_get('tickets/statuses')
+    status_ids = {status['ticketing_status']['name']: status['ticketing_status']['id'] for status in statuses}
+
+    review_status_id = status_ids['In Review']
+
+    status_xml = '<status-id>%s</status-id>' % review_status_id
+    assignee_xml = '<assignee-id>%s</assignee-id>' % user_id
+
+    post_data = '<ticket-note><content></content><changes>%s%s</changes></ticket-note>' % (status_xml, assignee_xml)
     api_post('tickets/%s/notes' % ticket_no, post_data)
 
 
