@@ -436,7 +436,10 @@ def mark_reviewing():
 @commander.command('ticket', 'set')
 def set_ticket(ticket_number):
     '''Sets a ticket for when auto-discovery is not possible'''
-    config.add_section('ticket')
+    try:
+        config.add_section('ticket')
+    except ConfigParser.DuplicateSectionError:
+        pass
     config.set('ticket', 'number', ticket_number)
     with open('.cbconfig', 'wb') as config_file:
         config.write(config_file)
