@@ -445,6 +445,65 @@ def set_ticket(ticket_number):
         config.write(config_file)
 
 
+def clean_branch_name(branch_name):
+    branch_name = branch_name.replace('* ', '').strip()
+    components = branch_name.split('/')
+    return components[-1]
+
+
+def match_branch_name(ticket_number, branch_name):
+    return ticket_number in branch_name
+
+
+@commander.command('workon')
+def workon(ticket_number):
+    '''Marks a ticket as "In Progress" for the current user'''
+    # Get the current branches
+    branches = check_output('git branch -a', stderr=STDOUT, shell=True)
+    branches = branches.split('\n')
+    branches = set(clean_branch_name(branch) for branch in branches if match_branch_name(ticket_number, branch))
+
+    if len(branches) > 1:
+        # Need to get the user to pick the branch
+        print '%d branches match that ticket number' % len(branches)
+        print 'Which branch did you mean?'
+        branch_map = {}
+        for i, branch in enumerate(branches, 1):
+            branch_map[i] = branch
+            print '%d. %s' % (i, branch)
+        branch = ''
+        while not branch:
+            try:
+                branch_index = int(raw_input('Please choose: '))
+            except ValueError:
+                pass
+            else:
+                branch = branch_map[branch_index]
+    elif len(branches) == 1:
+        branch = list(branches)[0]
+    else:
+        error('There are no branches that match %s' % ticket_number)
+        return
+
+    # Checkout the branch
+    retcode = call(['git', 'checkout', branch])
+
+    user_details = get_user_details()
+    user_id_map = {}
+
+    for user_id, user_details in user_details.iteritems():
+        user_id_map[user_details['username']] = user_id
+
+    user_id = user_id_map[AUTH_USERNAME.split('/')[1]]
+
+    statuses = api_get('tickets/statuses')
+    status_ids = {status['ticketing_status']['name']: status['ticketing_status']['id'] for status in statuses}
+
+    review_status_id = status_ids['In Progress']
+
+    post_ticket_note(ticket_no, status_id=review_status_id, assignee_id=user_id)
+
+
 if __name__ == "__main__":
     try:
         config = ConfigParser.SafeConfigParser()
