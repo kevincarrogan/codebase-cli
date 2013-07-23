@@ -534,6 +534,8 @@ def workon(ticket_number):
 
         post_ticket_note(ticket_number, status_id=review_status_id, assignee_id=user_id)        
 
+        set_ticket(ticket_number)
+
         return
 
     # Checkout the branch
