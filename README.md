@@ -4,6 +4,10 @@ Codebase-CLI is a command line interface for codebasehq.com.
 
 ## Usage
 
+### Install
+
+    $ pip install codebase-cli
+
 ### Initialise
 
 Initialisation will run the first time a command is used. You will be asked a set of questions pertaining to your codebasehq.com setup.
