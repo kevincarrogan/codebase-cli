@@ -5,6 +5,8 @@ setup(
     name='codebase-cli',
     description='A CLI for codebasehq.com',
     author='Kevin Morgan',
+    author_email='kevin.d.morgan@gmail.com',
+    url='http://github.com/kevindmorgan/codebase-cli',
     version='0.0.1',
     scripts=[pjoin('bin', 'cb')],
     requires=[],
