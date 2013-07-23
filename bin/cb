@@ -109,8 +109,9 @@ def api_post(url, data):
             ).read()
 
 
-@commander.command('ticket_number')
+@commander.command('ticket number')
 def ticket_number():
+    '''Shows the ticket cb is working against.'''
     print get_ticket_number()
 
 
