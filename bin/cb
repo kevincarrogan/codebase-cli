@@ -413,9 +413,37 @@ def ticket_update():
 
 
 @commander.command('review')
-def mark_reviewing():
-    '''Marks a ticket as in review for the current user.'''
-    ticket_no = get_ticket_number()
+def mark_reviewing(ticket_number):
+    '''Checks out and marks a ticket as in review for the current user.'''
+    # Get the current branches
+    branches = check_output('git branch -a', stderr=STDOUT, shell=True)
+    branches = branches.split('\n')
+    branches = set(clean_branch_name(branch) for branch in branches if match_branch_name(ticket_number, branch))
+
+    if len(branches) > 1:
+        # Need to get the user to pick the branch
+        print '%d branches match that ticket number' % len(branches)
+        print 'Which branch did you mean?'
+        branch_map = {}
+        for i, branch in enumerate(branches, 1):
+            branch_map[i] = branch
+            print '%d. %s' % (i, branch)
+        branch = ''
+        while not branch:
+            try:
+                branch_index = int(raw_input('Please choose: '))
+            except ValueError:
+                pass
+            else:
+                branch = branch_map[branch_index]
+    elif len(branches) == 1:
+        branch = list(branches)[0]
+    else:
+        error('There are no branches that match %s' % ticket_number)
+        return
+
+    # Checkout the branch
+    retcode = call(['git', 'checkout', branch])
 
     user_details = get_user_details()
     user_id_map = {}
