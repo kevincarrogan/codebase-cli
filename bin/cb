@@ -511,6 +511,29 @@ def workon(ticket_number):
         branch = list(branches)[0]
     else:
         error('There are no branches that match %s' % ticket_number)
+
+        inpt = ''
+
+        while not inpt in ('y', 'n',):
+            inpt = raw_input('Do you want to set this ticket in progress anyway? [y/N]: ')
+            if inpt == '' or inpt.lower() == 'n':
+                return
+
+        user_details = get_user_details()
+        user_id_map = {}
+
+        for user_id, user_details in user_details.iteritems():
+            user_id_map[user_details['username']] = user_id
+
+        user_id = user_id_map[AUTH_USERNAME.split('/')[1]]
+
+        statuses = api_get('tickets/statuses')
+        status_ids = {status['ticketing_status']['name']: status['ticketing_status']['id'] for status in statuses}
+
+        review_status_id = status_ids['In Progress']
+
+        post_ticket_note(ticket_number, status_id=review_status_id, assignee_id=user_id)        
+
         return
 
     # Checkout the branch
@@ -529,7 +552,7 @@ def workon(ticket_number):
 
     review_status_id = status_ids['In Progress']
 
-    post_ticket_note(ticket_no, status_id=review_status_id, assignee_id=user_id)
+    post_ticket_note(ticket_number, status_id=review_status_id, assignee_id=user_id)
 
 
 if __name__ == "__main__":
