@@ -457,7 +457,7 @@ def match_branch_name(ticket_number, branch_name):
 
 @commander.command('workon')
 def workon(ticket_number):
-    '''Marks a ticket as "In Progress" for the current user'''
+    '''Checks out and marks a ticket as "In Progress" for the current user'''
     # Get the current branches
     branches = check_output('git branch -a', stderr=STDOUT, shell=True)
     branches = branches.split('\n')
