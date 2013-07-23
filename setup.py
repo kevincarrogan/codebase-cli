@@ -7,7 +7,7 @@ setup(
     author='Kevin Morgan',
     author_email='kevin.d.morgan@gmail.com',
     url='http://github.com/kevindmorgan/codebase-cli',
-    version='0.0.1',
+    version='0.1.0',
     scripts=[pjoin('bin', 'cb')],
     requires=[],
 )
