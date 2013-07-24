@@ -459,7 +459,7 @@ def mark_reviewing(ticket_number):
 
     review_status_id = status_ids['In Review']
 
-    post_ticket_note(ticket_no, status_id=review_status_id, assignee_id=user_id)
+    post_ticket_note(ticket_number, status_id=review_status_id, assignee_id=user_id)
 
 
 @commander.command('ticket', 'set')
