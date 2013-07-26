@@ -148,7 +148,7 @@ def get_ticket_note_xml(content=None, status_id=None, assignee_id=None):
     if status_id:
         changes.append('<status-id>%s</status-id>' % status_id)
 
-    if assignee_id:
+    if assignee_id is not None:
         changes.append('<assignee-id>%s</assignee-id>' % assignee_id)
 
     return '<ticket-note><content>%s</content><changes>%s</changes></ticket-note>' % (content, ''.join(changes))
