@@ -340,9 +340,10 @@ def open_browser(ticket_number=None):
 
 
 @commander.command('ticket', 'update')
-def ticket_update():
+def ticket_update(ticket_no=None):
     '''Updates ticket data.'''
-    ticket_no = get_ticket_number()
+    if not ticket_no:
+        ticket_no = get_ticket_number()
 
     ticket_args = {}
 
