@@ -414,9 +414,7 @@ def ticket_update(ticket_no=None):
     post_ticket_note(ticket_no, **ticket_args)
 
 
-@commander.command('review')
-def mark_reviewing(ticket_number):
-    '''Checks out and marks a ticket as in review for the current user.'''
+def mark_as(ticket_number, status):
     # Get the current branches
     branches = check_output('git branch -a', stderr=STDOUT, shell=True)
     branches = branches.split('\n')
@@ -458,9 +456,21 @@ def mark_reviewing(ticket_number):
     statuses = api_get('tickets/statuses')
     status_ids = {status['ticketing_status']['name']: status['ticketing_status']['id'] for status in statuses}
 
-    review_status_id = status_ids['In Review']
+    status_id = status_ids[status]
 
-    post_ticket_note(ticket_number, status_id=review_status_id, assignee_id=user_id)
+    post_ticket_note(ticket_number, status_id=status_id, assignee_id=user_id)
+
+
+@commander.command('review')
+def mark_reviewing(ticket_number):
+    '''Checks out and marks a ticket as in review for the current user.'''
+    mark_as(ticket_number, 'In Review')
+
+
+@commander.command('workon')
+def mark_in_progress(ticket_number):
+    '''Checks out and marks a ticket as in progress for the current user.'''
+    mark_as(ticket_number, 'In Progress')
 
 
 @commander.command('ticket', 'set')
@@ -534,7 +544,7 @@ def workon(ticket_number):
 
         review_status_id = status_ids['In Progress']
 
-        post_ticket_note(ticket_number, status_id=review_status_id, assignee_id=user_id)        
+        post_ticket_note(ticket_number, status_id=review_status_id, assignee_id=user_id)
 
         set_ticket(ticket_number)
 
