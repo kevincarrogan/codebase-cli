@@ -1,4 +1,5 @@
-from os.path import join as pjoin
+import os
+
 from setuptools import setup
 
 setup(
@@ -8,6 +9,6 @@ setup(
     author_email='kevin.carrogan@gmail.com',
     url='http://github.com/kevindmorgan/codebase-cli',
     version='0.1.7',
-    scripts=[pjoin('bin', 'cb')],
+    scripts=[os.path.join('bin', 'cb')],
     requires=[],
 )
