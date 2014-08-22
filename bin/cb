@@ -333,8 +333,9 @@ def open_browser(ticket_number=None):
     )
     if not ticket_number:
         ticket_number = get_ticket_number(mute_error=True)
-        if ticket_number:
-            url = '%stickets/%s' % (url, ticket_number)
+
+    if ticket_number:
+        url = '%stickets/%s' % (url, ticket_number)
 
     os.system(
         'open %s' % url
