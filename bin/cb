@@ -163,13 +163,12 @@ def post_ticket_note(ticket_number, content=None, status_id=None, assignee_id=No
 def status(ticket_number=None):
     '''Gets the status of the current ticket.'''
     if not ticket_number:
-        ticket_no = get_ticket_number()
-    else:
-        ticket_no = ticket_number
+        ticket_number = get_ticket_number()
 
-    content = api_get('tickets/%s' % ticket_no)
+    if ticket_number:
+        content = api_get('tickets/%s' % ticket_number)
 
-    print content['ticket']['status']['name']
+        print content['ticket']['status']['name']
 
 
 @commander.command('status', 'update')
