@@ -266,9 +266,12 @@ def assigned_update():
 @commander.command('comments')
 @commander.command('log')
 @commander.command('notes')
-def comments():
+def comments(ticket_number=None):
     '''Gets a log of the comments.'''
-    ticket_no = get_ticket_number()
+    if ticket_number:
+        ticket_no = ticket_number
+    else:
+        ticket_no = get_ticket_number()
     content = api_get('tickets/%s/notes' % ticket_no)
     user_details = get_user_details()
     for comment in content:
