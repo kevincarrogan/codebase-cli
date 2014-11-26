@@ -133,8 +133,6 @@ def get_ticket_number(mute_error=False):
         error('Could not retrieve ticket number from config or branch name "%s".' % branch_name)
 
     if auto_ticket_number:
-        if config_ticket_number:
-            print 'Using ticket number %s from branch name instead of config' % auto_ticket_number
         return auto_ticket_number
 
     return config_ticket_number
