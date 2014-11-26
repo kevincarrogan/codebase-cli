@@ -317,11 +317,12 @@ def comments_update(message=None):
 @commander.command('description')
 @commander.command('desc')
 @commander.command('summary')
-def summary():
+def summary(ticket_number=None):
     '''Shows the description of the ticket.'''
-    ticket_no = get_ticket_number()
+    if not ticket_number:
+        ticket_number = get_ticket_number()
 
-    content = api_get('tickets/%s' % ticket_no)
+    content = api_get('tickets/%s' % ticket_number)
 
     print content['ticket']['summary']
 
