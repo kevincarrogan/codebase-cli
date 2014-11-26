@@ -8,7 +8,7 @@ setup(
     author='Kevin Carrogan',
     author_email='kevin.carrogan@gmail.com',
     url='http://github.com/kevincarrogan/codebase-cli',
-    version='0.1.8',
+    version='0.1.9',
     scripts=[os.path.join('bin', 'cb')],
     requires=[],
 )
